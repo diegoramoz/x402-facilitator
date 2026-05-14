@@ -10,7 +10,7 @@ import { describe, expect, it } from "bun:test";
 /**
  * Test Configuration
  */
-const API_BASE = "http://localhost:3000/api/public/v1";
+const API_BASE = "https://x402.localhost/api/public/v1";
 const API_KEY = "test_key_placeholder"; // Would be replaced with actual key in real tests
 
 /**

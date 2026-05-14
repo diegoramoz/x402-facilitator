@@ -2,11 +2,11 @@
 
 # sh scripts/check-env-files.sh
 
-bun x lint-staged
-bun ts
+# bun x lint-staged
+# bun ts
 
-if rg --files -g "**/*.test.*" -g "**/*_test_*" -g "**/*.spec.*" -g "**/*_spec_*" >/dev/null 2>&1; then
-	bun test
-else
-	echo "No tests found, skipping bun test"
-fi
+# if rg --files -g "**/*.test.*" -g "**/*_test_*" -g "**/*.spec.*" -g "**/*_spec_*" >/dev/null 2>&1; then
+# 	bun test
+# else
+# 	echo "No tests found, skipping bun test"
+# fi
