@@ -1,17 +1,26 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "9b5aa162-cbf1-4ba8-9b01-af01b2523b35",
-  "prevIds": ["11cab40d-86c0-4240-b744-6464b7484f57"],
+  "id": "3b09a369-d3ab-40ff-a1ea-ab113b219105",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
   "ddl": [
     {
-      "values": ["admin", "user"],
+      "values": [
+        "admin",
+        "user"
+      ],
       "name": "user_roles",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": ["pending", "active", "failed"],
+      "values": [
+        "pending",
+        "active",
+        "failed"
+      ],
       "name": "wallet_status",
       "entityType": "enums",
       "schema": "public"
@@ -923,10 +932,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "account_user_id_user_id_fkey",
@@ -936,10 +949,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "passkey_user_id_user_id_fkey",
@@ -949,10 +966,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "session_user_id_user_id_fkey",
@@ -962,10 +983,14 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "schemaTo": "public",
       "tableTo": "user",
-      "columnsTo": ["id"],
+      "columnsTo": [
+        "id"
+      ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "wallet_user_id_user_id_fkey",
@@ -974,7 +999,9 @@
       "table": "wallet"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "account_pkey",
       "schema": "public",
@@ -982,7 +1009,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "passkey_pkey",
       "schema": "public",
@@ -990,7 +1019,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "session_pkey",
       "schema": "public",
@@ -998,7 +1029,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "user_pkey",
       "schema": "public",
@@ -1006,7 +1039,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "verification_pkey",
       "schema": "public",
@@ -1014,7 +1049,9 @@
       "entityType": "pks"
     },
     {
-      "columns": ["id"],
+      "columns": [
+        "id"
+      ],
       "nameExplicit": false,
       "name": "wallet_pkey",
       "schema": "public",
@@ -1023,7 +1060,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["token"],
+      "columns": [
+        "token"
+      ],
       "nullsNotDistinct": false,
       "name": "session_token_key",
       "schema": "public",
@@ -1032,7 +1071,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["nano_id"],
+      "columns": [
+        "nano_id"
+      ],
       "nullsNotDistinct": false,
       "name": "user_nano_id_key",
       "schema": "public",
@@ -1041,7 +1082,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["email"],
+      "columns": [
+        "email"
+      ],
       "nullsNotDistinct": false,
       "name": "user_email_key",
       "schema": "public",
@@ -1050,7 +1093,9 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": [
+        "user_id"
+      ],
       "nullsNotDistinct": false,
       "name": "wallet_user_id_key",
       "schema": "public",

@@ -3,7 +3,7 @@ import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 import { z } from "zod";
 
-config({ path: "../../apps/finance/.env" });
+config({ path: "../../apps/x402/.env" });
 
 const env = createEnv({
 	server: { DATABASE_URL: z.string().min(1) },

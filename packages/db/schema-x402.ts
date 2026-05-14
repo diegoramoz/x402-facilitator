@@ -13,7 +13,7 @@ import {
 	index,
 	integer,
 	json,
-	pgSchema,
+	snakeCase,
 	text,
 	timestamp,
 	uniqueIndex,
@@ -21,13 +21,12 @@ import {
 } from "drizzle-orm/pg-core";
 import { myNanoid, NANO_ID_LENGTH } from "./constants";
 
-export const facilitatorSchema = pgSchema("facilitator");
 // ─── NEW TABLES FOR X402 ──────────────────────────────────────────────────
 
 /**
  * Organization: Tenant boundary for multi-tenant v1 foundation
  */
-export const organization = facilitatorSchema.table(
+export const organization = snakeCase.table(
 	"organization",
 	{
 		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
@@ -55,7 +54,7 @@ export const organization = facilitatorSchema.table(
  * Organization Member: Assign users to organizations
  * Assumes public.user table exists from packages/db/schema.ts
  */
-export const organizationMember = facilitatorSchema.table(
+export const organizationMember = snakeCase.table(
 	"organization_member",
 	{
 		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
@@ -89,7 +88,7 @@ export const organizationMember = facilitatorSchema.table(
  * Scope: (apiKeyId, route, bodyHash)
  * TTL: 24 hours
  */
-export const idempotencyResponse = facilitatorSchema.table(
+export const idempotencyResponse = snakeCase.table(
 	"idempotency_response",
 	{
 		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
@@ -118,7 +117,7 @@ export const idempotencyResponse = facilitatorSchema.table(
 /**
  * API Audit Log: Optional audit trail for admin dashboard
  */
-export const apiAuditLog = facilitatorSchema.table(
+export const apiAuditLog = snakeCase.table(
 	"api_audit_log",
 	{
 		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),

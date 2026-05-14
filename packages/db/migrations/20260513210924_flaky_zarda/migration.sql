@@ -1,1 +1,0 @@
-ALTER TABLE "wallet" DROP COLUMN "blockchain";
