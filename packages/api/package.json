@@ -1,0 +1,28 @@
+{
+  "name": "@ramoz/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.ts"
+    },
+    "./*": {
+      "default": "./*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@orpc/client": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/zod": "catalog:",
+    "@ramoz/auth": "workspace:*",
+    "@ramoz/db": "workspace:*",
+    "@ramoz/env": "workspace:*",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ramoz/config": "workspace:*",
+    "typescript": "^5"
+  }
+}

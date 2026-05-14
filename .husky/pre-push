@@ -1,0 +1,3 @@
+#!/bin/sh
+# bun packages/env/src/check-global-envs.ts
+# bun run build

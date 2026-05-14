@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-lyra",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@ramoz/ui/components",
+    "utils": "@ramoz/ui/lib/utils",
+    "hooks": "@ramoz/ui/hooks",
+    "lib": "@ramoz/ui/lib",
+    "ui": "@ramoz/ui/components"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {
+    "@ramoz": "https://ramoz.dev/r/{name}.json"
+  }
+}

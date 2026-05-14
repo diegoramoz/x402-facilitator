@@ -1,0 +1,30 @@
+{
+  "name": "@ramoz/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.ts"
+    },
+    "./*": {
+      "default": "./*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.3.1",
+    "@better-auth/expo": "catalog:",
+    "resend": "catalog:",
+    "@react-email/render": "catalog:",
+    "@better-auth/passkey": "catalog:",
+    "@ramoz/db": "workspace:*",
+    "@ramoz/ui": "workspace:*",
+    "@ramoz/env": "workspace:*",
+    "@polar-sh/sdk": "^0.42.2",
+    "better-auth": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ramoz/config": "workspace:*",
+    "typescript": "^5"
+  }
+}

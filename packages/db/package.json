@@ -1,0 +1,31 @@
+{
+  "name": "@ramoz/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.ts"
+    },
+    "./*": {
+      "default": "./*.ts"
+    }
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "@ramoz/env": "workspace:*",
+    "@ramoz/shared": "workspace:*",
+    "@t3-oss/env-core": "^0.13.1",
+    "dotenv": "catalog:",
+    "drizzle-orm": "^1.0.0-rc.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ramoz/config": "workspace:*",
+    "drizzle-kit": "^1.0.0-rc.1",
+    "typescript": "^5"
+  }
+}

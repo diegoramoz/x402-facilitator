@@ -1,0 +1,52 @@
+{
+  "name": "x402",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "portless x402 next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@better-auth/passkey": "catalog:",
+    "@circle-fin/adapter-viem-v2": "^1.10.0",
+    "@circle-fin/app-kit": "^1.5.0",
+    "@circle-fin/developer-controlled-wallets": "^10.3.1",
+    "@icons-pack/react-simple-icons": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/zod": "catalog:",
+    "@ramoz/api": "workspace:*",
+    "@ramoz/auth": "workspace:*",
+    "@ramoz/db": "workspace:*",
+    "@ramoz/env": "workspace:*",
+    "@ramoz/seo": "workspace:*",
+    "@ramoz/shared": "workspace:*",
+    "@ramoz/ui": "workspace:*",
+    "@tanstack/react-form": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "bcryptjs": "^2.4.3",
+    "better-auth": "catalog:",
+    "drizzle-orm": "^0.41.0",
+    "lucide-react": "^1.14.0",
+    "nanoid": "catalog:",
+    "next": "catalog:",
+    "next-themes": "catalog:",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-icons": "^5.6.0",
+    "sonner": "catalog:",
+    "viem": "^2.48.11",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ramoz/config": "workspace:*",
+    "@tailwindcss/postcss": "^4.2.4",
+    "@tanstack/react-query-devtools": "^5.99.2",
+    "@types/node": "^25.7.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "catalog:",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^5.9.3"
+  }
+}

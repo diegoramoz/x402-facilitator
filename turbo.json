@@ -1,0 +1,47 @@
+{
+  "$schema": "https://v2-9-6.turborepo.dev/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "POLAR_ACCESS_TOKEN",
+    "POLAR_SUCCESS_URL",
+    "CORS_ORIGIN",
+    "DATABASE_URL",
+    "UPLOADTHING_TOKEN",
+    "UPLOADTHING_APP_ID",
+    "RESEND_API_KEY",
+    "OLLAMA_URL",
+    "CF_ACCESS_CLIENT_ID",
+    "CF_ACCESS_CLIENT_SECRET",
+    "LOCAL_MACHINE_PING_URL",
+    "OLLAMA_MODEL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

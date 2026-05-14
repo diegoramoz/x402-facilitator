@@ -1,0 +1,12 @@
+{
+  "name": "DeFi Arbitrage Agent v1.0",
+  "description": "Autonomous trading agent for cross-DEX arbitrage on Arc",
+  "image": "ipfs://bafkreibdi6623n3xpf7ymk62ckb4bo75o3qemwkpfvp5i25j66itxvsoei",
+  "agent_type": "trading",
+  "capabilities": [
+    "arbitrage_detection",
+    "liquidity_monitoring",
+    "automated_execution"
+  ],
+  "version": "1.0.0"
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "wallet" ADD COLUMN "last_attempt_at" timestamp with time zone;

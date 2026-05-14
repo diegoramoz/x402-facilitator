@@ -1,0 +1,18 @@
+{
+  "name": "@ramoz/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./index.ts"
+    },
+    "./*": {
+      "default": "./*.ts"
+    }
+  },
+  "devDependencies": {
+    "@ramoz/config": "workspace:*",
+    "typescript": "^5"
+  }
+}
