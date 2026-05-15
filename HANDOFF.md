@@ -72,7 +72,7 @@ Before you consider this done:
 5. **Admin works**: key create/revoke/rotate flows complete
 6. **Auth enforced**: API key scopes and session auth checked
 7. **Idempotency enforced**: same key+body returns same response, conflict on mismatch
-8. **OpenAPI generated**: spec at `/api/public/v1/openapi.json` is valid JSON
+8. **OpenAPI generated**: spec at `/api/v2/openapi.json` is valid JSON
 9. **Tests pass**: integration + contract tests green
 10. **Old apps deleted**: facilitator + finance removed
 11. **Single commit**: one atomic change with full git history
@@ -84,9 +84,9 @@ These names are set in stone for this implementation:
 - App folder: `apps/x402`
 - Package name: `x402`
 - Dev script: `dev:x402` (via turbo)
-- Public API base: `/api/public/v1/`
+- Public API base: `/api/v2/`
 - Admin API base: `/api/admin/`
-- Docs: `/docs` and `/api/public/v1/openapi.json`
+- Docs: `/docs` and `/api/v2/openapi.json`
 
 ## What Not to Do
 
@@ -116,10 +116,10 @@ bun run db:push
 # Phase 9.4: Dev server + manual tests
 bun run dev:x402
 # In another terminal, test:
-# POST /api/public/v1/verify with API key → 200
-# POST /api/public/v1/settle with API key → 202
-# GET /api/public/v1/status/verification/{id} → 200 or 404
-# GET /api/public/v1/openapi.json → valid JSON
+# POST /api/v2/verify with API key → 200
+# POST /api/v2/settle with API key → 202
+# GET /api/v2/status/verification/{id} → 200 or 404
+# GET /api/v2/openapi.json → valid JSON
 # Create/revoke API key in admin → works
 
 # Phase 9.5: Final check

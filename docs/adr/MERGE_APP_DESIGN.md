@@ -72,7 +72,7 @@ Consolidate `apps/facilitator` (Hono backend service) and `apps/finance` (Next.j
   - Webhook delivery added later if needed
 
 **Q9: OpenAPI versioning strategy**
-- **Decision**: Path-versioned public API (`/api/public/v1/`), unversioned admin (`/api/admin/`)
+- **Decision**: Path-versioned public API (`/api/v2/`), unversioned admin (`/api/admin/`)
 - **Rationale**: Stable partner contract, flexible internal surface
 - **Details**:
   - Breaking changes → new v2 paths, support one overlapping window
@@ -101,7 +101,7 @@ Consolidate `apps/facilitator` (Hono backend service) and `apps/finance` (Next.j
 - **Decision**: Docs-in-app with generated OpenAPI as source of truth
 - **Rationale**: Eliminates drift, keeps partner docs consumable, reliable contract
 - **Details**:
-  - Public spec at `/api/public/v1/openapi.json` (JSON only)
+  - Public spec at `/api/v2/openapi.json` (JSON only)
   - Internal admin docs in repo markdown
   - CI fails if spec diff is uncommitted
 
@@ -163,10 +163,10 @@ Consolidate `apps/facilitator` (Hono backend service) and `apps/finance` (Next.j
 - **Rationale**: Consistent product naming, minimizes churn
 - **Details**:
   - Temp alias: `dev:finance` → `dev:x402` during migration
-  - API: `/api/public/v1/`, `/api/admin/`
+  - API: `/api/v2/`, `/api/admin/`
 
 **Q22: OpenAPI exposure**
-- **Decision**: JSON-only spec at `/api/public/v1/openapi.json`, no UI for now
+- **Decision**: JSON-only spec at `/api/v2/openapi.json`, no UI for now
 - **Rationale**: User preference for simplicity, can add UI later
 - **Details**: Build artifact `openapi-public-v1.json` for SDK generation
 

@@ -23,7 +23,8 @@
     "paths": {
       "@/*": ["./*"],
       "@ramoz/ui/*": ["../../packages/ui/src/*"]
-    }
+    },
+    "types": ["bun-types", "node"]
   },
   "include": [
     "next-env.d.ts",

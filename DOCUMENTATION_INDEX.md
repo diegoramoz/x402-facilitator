@@ -140,7 +140,7 @@ These **cannot** change during implementation:
 
 ✅ All 25 design decisions (see ADR)  
 ✅ oRPC for API generation  
-✅ Public API path: `/api/public/v1/`  
+✅ Public API path: `/api/v2/`  
 ✅ Admin API path: `/api/admin/`  
 ✅ App name: `apps/x402`  
 ✅ Single commit (no PRs)  

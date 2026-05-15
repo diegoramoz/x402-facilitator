@@ -16,7 +16,6 @@ export async function proxy(request: NextRequest) {
 
 	const isPublic =
 		PUBLIC_ROUTES.some((route) => pathname.startsWith(route)) ||
-		pathname.startsWith("/api/auth") ||
 		PUBLIC_METADATA_ROUTES.some((route) => pathname.endsWith(route));
 
 	if (isPublic) {
@@ -37,6 +36,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
 	matcher: [
-		"/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest)$).*)",
+		"/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest)$).*)",
 	],
 };

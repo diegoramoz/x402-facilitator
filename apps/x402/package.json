@@ -25,6 +25,7 @@
     "@ramoz/ui": "workspace:*",
     "@tanstack/react-form": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@upstash/redis": "^1.38.0",
     "bcryptjs": "^2.4.3",
     "better-auth": "catalog:",
     "drizzle-orm": "^0.41.0",

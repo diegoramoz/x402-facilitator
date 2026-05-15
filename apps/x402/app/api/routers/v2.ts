@@ -1,20 +1,20 @@
 import { z } from "zod";
+import { publicProcedure } from "@/app/api/routers/procedures";
 import {
 	getSettlementStatus as getFacilitatorSettlementStatus,
 	getVerificationStatus as getFacilitatorVerificationStatus,
 	settlePayment,
 	verifyPayment,
 } from "@/utils/facilitator";
-import { publicProcedure } from "./procedures";
 
 /**
  * Public Router - Payment Verification and Settlement
  *
  * Endpoints:
- * - POST /api/public/v1/verify - Verify payment signature
- * - POST /api/public/v1/settle - Submit settlement to blockchain
- * - GET /api/public/v1/status/verification/:id - Check verification status
- * - GET /api/public/v1/status/settlement/:id - Check settlement status
+ * - POST /api/v2/verify - Verify payment signature
+ * - POST /api/v2/settle - Submit settlement to blockchain
+ * - GET /api/v2/status/verification/:id - Check verification status
+ * - GET /api/v2/status/settlement/:id - Check settlement status
  */
 
 // ===== Input Schemas =====

@@ -104,11 +104,11 @@ root/
 
 Must exist and be wired:
 ```
-POST  /api/public/v1/verify
-POST  /api/public/v1/settle
-GET   /api/public/v1/status/verification/:verificationId
-GET   /api/public/v1/status/settlement/:settlementId
-GET   /api/public/v1/openapi.json
+POST  /api/v2/verify
+POST  /api/v2/settle
+GET   /api/v2/status/verification/:verificationId
+GET   /api/v2/status/settlement/:settlementId
+GET   /api/v2/openapi.json
 ```
 
 ### Admin API Surface
@@ -127,7 +127,7 @@ GET   /api/admin/resource-servers
 
 ```
 GET   /docs                   (redirect or simple JSON viewer)
-GET   /api/public/v1/openapi.json  (canonical spec)
+GET   /api/v2/openapi.json  (canonical spec)
 ```
 
 ### Health Check
@@ -230,7 +230,7 @@ Add:
 ## Naming Conventions in Code
 
 Use these exact prefixes/names everywhere:
-- API routes: `/api/public/v1/` for public, `/api/admin/` for admin
+- API routes: `/api/v2/` for public, `/api/admin/` for admin
 - oRPC router variables: `publicRouter`, `adminRouter`
 - Middleware functions: `verifyApiKey()`, `checkIdempotency()`, `checkRateLimit()`
 - Database queries: prefix org-boundary checks with `organizationId` filter

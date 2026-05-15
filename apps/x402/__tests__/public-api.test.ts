@@ -2,7 +2,7 @@
  * x402 Public API Integration Tests
  *
  * Tests for payment verification and settlement endpoints
- * Location: /api/public/v1/*
+ * Location: /api/v2/*
  */
 
 import { describe, expect, it } from "bun:test";
@@ -10,7 +10,7 @@ import { describe, expect, it } from "bun:test";
 /**
  * Test Configuration
  */
-const API_BASE = "https://x402.localhost/api/public/v1";
+const API_BASE = "https://x402.localhost/api/v2";
 const API_KEY = "test_key_placeholder"; // Would be replaced with actual key in real tests
 
 /**
@@ -200,6 +200,30 @@ describe("GET /status/settlement/:id - Settlement Status", () => {
 		expect(status).toBe(200);
 		expect(data).toHaveProperty("result");
 		expect(data.result.settlementId).toBe(settlementId);
+	});
+});
+
+/**
+ * Test Suite: Discovery Endpoint
+ */
+describe("GET /supported - Discovery", () => {
+	it("should return supported networks without authentication", async () => {
+		const response = await fetch(`${API_BASE}/supported`, {
+			method: "GET",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-control")).toBe(
+			"public, max-age=60, s-maxage=3600, stale-while-revalidate=86400"
+		);
+
+		const data = await response.json();
+		expect(data).toHaveProperty("kinds");
+		expect(data).toHaveProperty("signers");
+		expect(data).toHaveProperty("extensions");
 	});
 });
 

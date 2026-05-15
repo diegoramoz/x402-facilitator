@@ -32,10 +32,10 @@ Tenant boundary. Resource servers belong to organizations. Dashboard users belon
 ## Routes & APIs
 
 ### Public (Requires API Key Auth)
-- `POST /api/public/v1/verify` — validate payment signature
-- `POST /api/public/v1/settle` — submit settlement to blockchain
-- `GET /api/public/v1/status/verification/:verificationId` — check verification status
-- `GET /api/public/v1/status/settlement/:settlementId` — check settlement status
+- `POST /api/v2/verify` — validate payment signature
+- `POST /api/v2/settle` — submit settlement to blockchain
+- `GET /api/v2/status/verification/:verificationId` — check verification status
+- `GET /api/v2/status/settlement/:settlementId` — check settlement status
 
 ### Admin (Requires Session Auth)
 - Resource server CRUD
@@ -43,7 +43,7 @@ Tenant boundary. Resource servers belong to organizations. Dashboard users belon
 - Usage metrics and audit logs
 
 ### Public Docs
-- `GET /api/public/v1/openapi.json` — OpenAPI spec (JSON only, no UI for now)
+- `GET /api/v2/openapi.json` — OpenAPI spec (JSON only, no UI for now)
 - `GET /docs` — (future: interactive docs)
 
 ### Health
@@ -118,13 +118,13 @@ Tenant boundary. Resource servers belong to organizations. Dashboard users belon
 - App folder: `apps/x402`
 - Package name: `x402`
 - Dev script: `dev:x402` → `turbo -F x402 dev`
-- API versioning: `/api/public/v1/` for partners, `/api/admin/` for internal
+- API versioning: `/api/v2/` for partners, `/api/admin/` for internal
 - Handlers: in `app/api/` with route grouping for clarity
 
 ## OpenAPI & Docs
 
 - **Source of truth**: Generated from oRPC routers
-- **Spec path**: `/api/public/v1/openapi.json` (JSON only, no UI)
+- **Spec path**: `/api/v2/openapi.json` (JSON only, no UI)
 - **Artifact**: `openapi-public-v1.json` (build output for CI/SDK generation)
 - **Admin spec**: Not exposed publicly
 

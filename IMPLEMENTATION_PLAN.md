@@ -349,7 +349,7 @@ const response = await settlePayment(resourceServerId, input);
 
 ```typescript
 // TODO: Use @orpc/openapi to generate spec for public router
-// Expose at /api/public/v1/openapi.json
+// Expose at /api/v2/openapi.json
 ```
 
 ### Step 6.2: Add docs route (JSON only)
@@ -357,7 +357,7 @@ const response = await settlePayment(resourceServerId, input);
 
 ```typescript
 export async function GET() {
-  // TODO: Redirect to /api/public/v1/openapi.json or serve minimal docs page
+  // TODO: Redirect to /api/v2/openapi.json or serve minimal docs page
 }
 ```
 
@@ -426,10 +426,10 @@ bun run db:push
 # In separate terminal:
 bun run dev:x402
 # In another terminal, manual checks:
-# - POST http://localhost:3000/api/public/v1/verify with valid key → 200
-# - POST http://localhost:3000/api/public/v1/settle with valid key → 202
-# - GET http://localhost:3000/api/public/v1/status/verification/xxx → 200 or 404
-# - GET http://localhost:3000/api/public/v1/openapi.json → valid JSON spec
+# - POST http://localhost:3000/api/v2/verify with valid key → 200
+# - POST http://localhost:3000/api/v2/settle with valid key → 202
+# - GET http://localhost:3000/api/v2/status/verification/xxx → 200 or 404
+# - GET http://localhost:3000/api/v2/openapi.json → valid JSON spec
 # - GET http://localhost:3000/docs → serves docs
 
 # 5. Final build after validation

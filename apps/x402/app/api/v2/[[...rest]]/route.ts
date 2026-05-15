@@ -1,7 +1,7 @@
 /**
- * x402 Public API v1
+ * x402 API v2
  *
- * Route: /api/public/v1/*
+ * Route: /api/v2/*
  *
  * Public API for payment verification and settlement
  * Requires: API key authentication
@@ -13,8 +13,8 @@ import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import type { NextRequest } from "next/server";
-import { createPublicContext } from "../../../routers/procedures";
-import { publicRouter } from "../../../routers/public";
+import { createPublicContext } from "@/app/api/routers/procedures";
+import { publicRouter } from "@/app/api/routers/v2";
 
 /**
  * Create unified router for public API
@@ -27,7 +27,7 @@ const appRouter = {
 };
 
 /**
- * RPC Handler: Processes requests to /api/public/v1/[procedure]
+ * RPC Handler: Processes requests to /api/v2/[procedure]
  */
 const rpcHandler = new RPCHandler(appRouter, {
 	interceptors: [
@@ -38,7 +38,7 @@ const rpcHandler = new RPCHandler(appRouter, {
 });
 
 /**
- * OpenAPI Handler: Generates schema at /api/public/v1/openapi.json
+ * OpenAPI Handler: Generates schema at /api/v2/openapi.json
  */
 const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
@@ -62,11 +62,11 @@ async function handleRequest(req: NextRequest) {
 
 		// Check for OpenAPI spec request
 		if (
-			req.nextUrl.pathname === "/api/public/v1/openapi.json" ||
+			req.nextUrl.pathname === "/api/v2/openapi.json" ||
 			req.nextUrl.pathname.endsWith("/openapi.json")
 		) {
 			const apiResult = await apiHandler.handle(req, {
-				prefix: "/api/public/v1",
+				prefix: "/api/v2",
 				context,
 			});
 			if (apiResult.response) {
@@ -76,7 +76,7 @@ async function handleRequest(req: NextRequest) {
 
 		// Handle RPC procedure calls
 		const rpcResult = await rpcHandler.handle(req, {
-			prefix: "/api/public/v1",
+			prefix: "/api/v2",
 			context,
 		});
 		if (rpcResult.response) {
