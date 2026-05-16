@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { publicProcedure } from "@/app/api/routers/procedures";
+import { x402VerifySchema } from "@/app/api/routers/schemas";
 import {
 	getSettlementStatus as getFacilitatorSettlementStatus,
 	getVerificationStatus as getFacilitatorVerificationStatus,
@@ -17,34 +18,11 @@ import {
  * - GET /api/v2/status/settlement/:id - Check settlement status
  */
 
-// ===== Input Schemas =====
-
-const PaymentDetailsInput = z.object({
-	amount: z.string().describe("Amount in wei"),
-	currency: z.string().describe("Currency code (e.g., USDC)"),
-	networkId: z.string().describe("Blockchain network (e.g., base)"),
-});
-
-const PaymentPayloadInput = z.object({
-	amount: z.string().describe("Amount in wei"),
-	signature: z.string().describe("Cryptographic signature"),
-	timestamp: z.number().describe("Unix timestamp"),
-	clientAddress: z.string().optional().describe("Client EVM address"),
-	nonce: z.string().optional().describe("Transaction nonce"),
-});
-
-// ===== Procedures =====
-
 /**
  * Verify a payment signature
  */
 const verify = publicProcedure
-	.input(
-		z.object({
-			paymentDetails: PaymentDetailsInput,
-			paymentPayload: PaymentPayloadInput,
-		})
-	)
+	.input(x402VerifySchema)
 	.handler(async ({ input }) =>
 		verifyPayment({
 			paymentDetails: input.paymentDetails,

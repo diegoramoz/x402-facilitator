@@ -10,7 +10,7 @@ export const env = createEnv({
 		BETTER_AUTH_URL: z.url(),
 		UPSTASH_REDIS_REST_URL: z.url(),
 		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
-		TRUST_PROXY_HEADERS: z.enum(["true", "false"]).default("false"),
+		TRUST_PROXY_HEADERS: z.stringbool().default(false),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),

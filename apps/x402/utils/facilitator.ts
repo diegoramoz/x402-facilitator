@@ -10,21 +10,6 @@ import { nanoid } from "nanoid";
 
 const LOG_LEVEL = process.env.FACILITATOR_LOG_LEVEL || "scrubbed";
 
-export type VerificationInput = {
-	paymentDetails: {
-		amount: string;
-		currency: string;
-		networkId: string;
-	};
-	paymentPayload: {
-		amount: string;
-		signature: string;
-		timestamp: number;
-		clientAddress?: string;
-		nonce?: string;
-	};
-};
-
 export type SettlementInput = {
 	paymentDetails: {
 		amount: string;
