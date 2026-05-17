@@ -11,14 +11,43 @@ import {
 	insertPaymentVerificationSchema,
 	paymentVerification,
 } from "@ramoz/db/schema";
-import { nanoid } from "nanoid";
+import { x402Facilitator } from "@x402/core/facilitator";
+import { ExactEvmScheme } from "@x402/evm/exact/facilitator";
+import { UptoEvmScheme } from "@x402/evm/upto/facilitator";
+import { arcTestnet, baseSepolia } from "viem/chains";
 import type {
 	X402SettleRequestBody,
+	X402SettleResponse,
 	X402VerifyRequestBody,
 	X402VerifyResponse,
 } from "@/app/api/routers/schemas";
+import { generateEvmClient } from "@/utils/evm-client-factory";
 
 const LOG_LEVEL = process.env.FACILITATOR_LOG_LEVEL || "scrubbed";
+
+const baseSepoliaClient = generateEvmClient({ chain: baseSepolia.id });
+const arcTestnetClient = generateEvmClient({ chain: arcTestnet.id });
+
+const facilitator = new x402Facilitator();
+
+facilitator.register(
+	`eip155:${baseSepolia.id}`,
+	new ExactEvmScheme(baseSepoliaClient, { deployERC4337WithEIP6492: true })
+);
+facilitator.register(
+	`eip155:${arcTestnet.id}`,
+	new ExactEvmScheme(arcTestnetClient, { deployERC4337WithEIP6492: true })
+);
+facilitator.register(
+	`eip155:${baseSepolia.id}`,
+	new UptoEvmScheme(baseSepoliaClient)
+);
+facilitator.register(
+	`eip155:${arcTestnet.id}`,
+	new UptoEvmScheme(arcTestnetClient)
+);
+
+export const supported = facilitator.getSupported();
 
 export type SettlementResult = {
 	error?: string;
@@ -67,42 +96,45 @@ const getRequiredAmount = (
 
 /**
  * Verify a payment payload
- *
- * Performs x402 verification logic and stores result in database.
- * Returns idempotent results for duplicate payloads.
  */
 export async function verifyPayment(
-	input: X402VerifyRequestBody
+	body: X402VerifyRequestBody
 ): Promise<X402VerifyResponse> {
-	const payloadHash = hashPayload(input.paymentPayload);
-	const candidateAmount = getCandidateAmount(input.paymentPayload.payload);
-	const requiredAmount = getRequiredAmount(input.paymentRequirements);
-	const payer = getPayerAddress(input.paymentPayload.payload);
+	const payloadHash = hashPayload(body.paymentPayload);
+	const candidateAmount = getCandidateAmount(body.paymentPayload.payload);
+	const requiredAmount = getRequiredAmount(body.paymentRequirements);
+	const payer = getPayerAddress(body.paymentPayload.payload);
 
 	try {
-		const isValid = true;
+		// Hooks will automatically:
+		// - Track verified payment (onAfterVerify)
+		// - Extract and catalog discovery info (onAfterVerify)
+		const response = await facilitator.verify(
+			body.paymentPayload,
+			body.paymentRequirements
+		);
 
 		await db.insert(paymentVerification).values(
 			insertPaymentVerificationSchema.parse({
 				payloadHash,
-				x402Version: input.x402Version,
-				network: input.paymentRequirements.network,
+				x402Version: body.x402Version,
+				network: body.paymentRequirements.network,
 				requiredAmount,
 				candidateAmount,
 				payer,
-				payTo: input.paymentRequirements.payTo,
-				isValid,
+				payTo: body.paymentRequirements.payTo,
+				isValid: response.isValid,
 				reason: null,
 				logLevel: LOG_LEVEL,
-				payload: JSON.stringify(input),
+				payload: JSON.stringify(body),
 				// Set expiration for deduplication window (e.g. 30 days)
 				expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 			} satisfies typeof insertPaymentVerificationSchema._zod.input)
 		);
 
 		return {
-			isValid,
 			payer,
+			...response,
 		};
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : "Unknown error";
@@ -118,115 +150,58 @@ export async function verifyPayment(
 
 /**
  * Settle a payment by submitting a transaction to the blockchain
- *
- * TODO: Integrate with viem for blockchain transaction handling
- * Current implementation creates settlement record with pending status.
- * Blockchain submission and confirmation tracking should be implemented
- * using viem with proper error handling for:
- * - Insufficient balance
- * - RPC errors
- * - Transaction reversion
- * - Confirmation timeouts
  */
-export function settlePayment(
-	_input: X402SettleRequestBody
-): Promise<SettlementResult> {
-	const settlementId = `set_${nanoid()}`;
+export async function settlePayment(
+	body: X402SettleRequestBody
+): Promise<X402SettleResponse> {
+	// const payloadHash = hashPayload(body.paymentPayload);
+	const requiredAmount = getRequiredAmount(body.paymentRequirements);
+	const payer = getPayerAddress(body.paymentPayload.payload);
 
 	try {
-		// TODO: Verify the payment was previously verified
-		// Check payment verification table for verificationId
-		// Validate verification status is "verified"
+		const facilitator = new x402Facilitator();
 
-		// TODO: Check for duplicate settlements
-		// Query settlement table for verificationId
-		// If exists and status is "confirmed", return idempotent result
+		// Verify payment
+		const verifyResult = await facilitator.verify(
+			body.paymentPayload,
+			body.paymentRequirements
+		);
 
-		// TODO: Create settlement record in database with pending status
-		// Insert into settlement table with status: "pending"
-		// This would prepare for blockchain transaction submission
+		if (verifyResult.isValid) {
+			const settleResult = await facilitator.settle(
+				body.paymentPayload,
+				body.paymentRequirements
+			);
+			console.log("Transaction:", settleResult.transaction);
 
-		// TODO: Prepare viem transaction for USDC transfer
-		// - Parse recipient address from payload
-		// - Convert amount to wei with correct decimals
-		// - Check facilitator wallet balance
-		// - Submit transaction via writeContract
-		// - Wait for confirmation with timeout
+			return {
+				...settleResult,
+				payer,
+				amount: requiredAmount,
+				network: body.paymentRequirements.network,
+				success: true,
+				transaction: settleResult.transaction,
+			};
+		}
 
-		// TODO: Update settlement record with tx hash and confirmation details
-		// On success: status = "confirmed", store blockNumber, gasUsed, confirmationTime
-		// On failure: status = "failed", store errorReason and errorDetails
-
-		// For now, return pending status
-		return Promise.resolve({
-			settlementId,
-			status: "pending",
-			// transactionHash: "", // Will be populated after blockchain submission
-		});
+		return {
+			payer,
+			network: body.paymentRequirements.network,
+			success: false,
+			amount: requiredAmount,
+			transaction: "0x00",
+		};
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : "Unknown error";
 		console.error("[x402] Settlement error:", errorMsg);
 
-		return Promise.resolve({
-			settlementId,
-			status: "failed",
-			error: errorMsg,
-		});
+		return {
+			network: body.paymentRequirements.network,
+			payer,
+			success: false,
+			transaction: "0x00",
+			errorMessage: errorMsg,
+			amount: requiredAmount,
+		};
 	}
-}
-
-/**
- * Get verification status by ID
- *
- * Queries payment verification table for historical status and result
- */
-export function getVerificationStatus(
-	verificationId: string
-): Promise<VerificationResult> {
-	return db
-		.select({
-			verificationId: paymentVerification.verificationId,
-			isValid: paymentVerification.isValid,
-			reason: paymentVerification.reason,
-			createdAt: paymentVerification.createdAt,
-		})
-		.from(paymentVerification)
-		.then((rows) => {
-			const record = rows.find((row) => row.verificationId === verificationId);
-
-			if (!record) {
-				return {
-					verificationId,
-					isValid: false,
-					timestamp: Date.now(),
-					reason: "Verification not found",
-				};
-			}
-
-			return {
-				verificationId: record.verificationId,
-				isValid: record.isValid,
-				reason: record.reason ?? undefined,
-				timestamp: record.createdAt.getTime(),
-			};
-		});
-}
-
-/**
- * Get settlement status by ID
- *
- * Queries settlement table for historical status, tx hash, and confirmation details
- */
-export function getSettlementStatus(
-	settlementId: string
-): Promise<SettlementResult> {
-	// TODO: Query database for settlement record
-	// Look up by nanoId in settlement table
-	// Return stored status, transaction hash, and any error details
-
-	// For now, return placeholder
-	return Promise.resolve({
-		settlementId,
-		status: "pending",
-	});
 }

@@ -22,8 +22,6 @@ import { publicRouter } from "@/app/api/routers/v2";
 const appRouter = {
 	verify: publicRouter.verify,
 	settle: publicRouter.settle,
-	getVerificationStatus: publicRouter.getVerificationStatus,
-	getSettlementStatus: publicRouter.getSettlementStatus,
 };
 
 /**

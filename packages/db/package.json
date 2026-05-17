@@ -20,12 +20,12 @@
     "@ramoz/shared": "workspace:*",
     "@t3-oss/env-core": "^0.13.1",
     "dotenv": "catalog:",
-    "drizzle-orm": "^1.0.0-rc.1",
+    "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@ramoz/config": "workspace:*",
-    "drizzle-kit": "^1.0.0-rc.1",
+    "drizzle-kit": "catalog:",
     "typescript": "^5"
   }
 }

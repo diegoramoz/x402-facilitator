@@ -50,14 +50,16 @@ const schemeSchema = z
 		"Payment scheme, either 'exact' for fixed payments or 'upto' for variable payments up to a maximum amount"
 	);
 
+const networkCAIP2Schema = z.templateLiteral([`${z.string()}:${z.string()}`]);
+
 const acceptedSchema = z.object({
 	scheme: schemeSchema,
-	network: z.string().min(1),
+	network: networkCAIP2Schema,
 	asset: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	amount: z.string().min(1),
 	payTo: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	maxTimeoutSeconds: z.int().nonnegative(),
-	extra: z.looseObject({}).optional(),
+	extra: z.looseRecord(z.string(), z.unknown()),
 });
 
 const resourceSchema = z
@@ -140,26 +142,27 @@ const paymentPayloadOption2Schema = z.object({
 
 const paymentRequirementsOption1Schema = z.object({
 	scheme: schemeSchema,
-	network: z.string().min(1),
+	network: networkCAIP2Schema,
 	asset: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	amount: z.string().min(1),
 	payTo: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	maxTimeoutSeconds: z.int().nonnegative(),
-	extra: z.looseObject({}).optional(),
+	extra: z.looseRecord(z.string(), z.unknown()),
 });
 
 const paymentRequirementsOption2Schema = z.object({
 	scheme: z.enum(["exact"]),
-	network: networkSchema,
+	network: networkCAIP2Schema,
 	maxAmountRequired: z.string().min(1),
 	resource: z.url(),
 	description: z.string().max(500),
+	amount: z.string().min(1),
 	mimeType: z.string().min(1),
 	payTo: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	maxTimeoutSeconds: z.int().nonnegative(),
 	asset: evmChecksumAddressSchema.or(base58SolanaAddressSchema),
 	outputSchema: z.looseObject({}).optional(),
-	extra: z.looseObject({}).optional(),
+	extra: z.looseRecord(z.string(), z.unknown()),
 });
 
 const verifyOption1Schema = z.object({

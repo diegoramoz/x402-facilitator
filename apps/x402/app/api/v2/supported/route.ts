@@ -1,5 +1,5 @@
 import { API_POLICY } from "@/app/api/policy";
-import { SUPPORTED_RESPONSE } from "@/app/api/v2/supported-response";
+import { supported } from "@/utils/facilitator";
 
 function applyDiscoveryCacheHeaders(response: Response): Response {
 	const policy = API_POLICY.v2.supported;
@@ -22,7 +22,7 @@ function applyDiscoveryCacheHeaders(response: Response): Response {
 
 export function GET() {
 	return applyDiscoveryCacheHeaders(
-		Response.json(SUPPORTED_RESPONSE, {
+		Response.json(supported, {
 			headers: { "Content-Type": "application/json" },
 		})
 	);

@@ -1,15 +1,9 @@
-import { z } from "zod";
 import { apiKeyProcedure } from "@/app/api/routers/procedures";
 import {
 	x402SettleRequestBodySchema,
 	x402VerifyRequestBodySchema,
 } from "@/app/api/routers/schemas";
-import {
-	getSettlementStatus as getFacilitatorSettlementStatus,
-	getVerificationStatus as getFacilitatorVerificationStatus,
-	settlePayment,
-	verifyPayment,
-} from "@/utils/facilitator";
+import { settlePayment, verifyPayment } from "@/utils/facilitator";
 
 /**
  * Public Router - Payment Verification and Settlement
@@ -35,23 +29,23 @@ const settle = apiKeyProcedure
 	.input(x402SettleRequestBodySchema)
 	.handler(async ({ input }) => settlePayment(input));
 
-/**
- * Get verification status
- */
-const getVerificationStatus = apiKeyProcedure
-	.input(z.object({ verificationId: z.string() }))
-	.handler(async ({ input }) =>
-		getFacilitatorVerificationStatus(input.verificationId)
-	);
+// /**
+//  * Get verification status
+//  */
+// const getVerificationStatus = apiKeyProcedure
+// 	.input(z.object({ verificationId: z.string() }))
+// 	.handler(async ({ input }) =>
+// 		getFacilitatorVerificationStatus(input.verificationId)
+// 	);
 
-/**
- * Get settlement status
- */
-const getSettlementStatus = apiKeyProcedure
-	.input(z.object({ settlementId: z.string() }))
-	.handler(async ({ input }) =>
-		getFacilitatorSettlementStatus(input.settlementId)
-	);
+// /**
+//  * Get settlement status
+//  */
+// const getSettlementStatus = apiKeyProcedure
+// 	.input(z.object({ settlementId: z.string() }))
+// 	.handler(async ({ input }) =>
+// 		getFacilitatorSettlementStatus(input.settlementId)
+// 	);
 
 /**
  * Export public router
@@ -59,8 +53,8 @@ const getSettlementStatus = apiKeyProcedure
 export const publicRouter = {
 	verify,
 	settle,
-	getVerificationStatus,
-	getSettlementStatus,
+	// getVerificationStatus,
+	// getSettlementStatus,
 };
 
 export type PublicRouter = typeof publicRouter;
