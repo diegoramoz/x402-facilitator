@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { publicProcedure } from "@/app/api/routers/procedures";
-import { x402VerifySchema } from "@/app/api/routers/schemas";
+import {
+	x402SettleRequestBodySchema,
+	x402VerifyRequestBodySchema,
+} from "@/app/api/routers/schemas";
 import {
 	getSettlementStatus as getFacilitatorSettlementStatus,
 	getVerificationStatus as getFacilitatorVerificationStatus,
@@ -22,32 +25,15 @@ import {
  * Verify a payment signature
  */
 const verify = publicProcedure
-	.input(x402VerifySchema)
-	.handler(async ({ input }) =>
-		verifyPayment({
-			paymentDetails: input.paymentDetails,
-			paymentPayload: input.paymentPayload,
-		})
-	);
+	.input(x402VerifyRequestBodySchema)
+	.handler(async ({ input }) => verifyPayment(input));
 
 /**
  * Submit a settlement to blockchain
  */
 const settle = publicProcedure
-	.input(
-		z.object({
-			verificationId: z.string(),
-			paymentDetails: PaymentDetailsInput,
-			paymentPayload: PaymentPayloadInput,
-		})
-	)
-	.handler(async ({ input }) =>
-		settlePayment({
-			verificationId: input.verificationId,
-			paymentDetails: input.paymentDetails,
-			paymentPayload: input.paymentPayload,
-		})
-	);
+	.input(x402SettleRequestBodySchema)
+	.handler(async ({ input }) => settlePayment(input));
 
 /**
  * Get verification status

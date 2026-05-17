@@ -7,6 +7,10 @@
 
 import crypto from "node:crypto";
 import { nanoid } from "nanoid";
+import type {
+	X402SettleRequestBody,
+	X402VerifyRequestBody,
+} from "@/app/api/routers/schemas";
 
 const LOG_LEVEL = process.env.FACILITATOR_LOG_LEVEL || "scrubbed";
 
@@ -115,7 +119,7 @@ function performPayloadVerification(input: VerificationInput): {
  * Returns idempotent results for duplicate payloads.
  */
 export function verifyPayment(
-	input: VerificationInput
+	input: X402VerifyRequestBody
 ): Promise<VerificationResult> {
 	const verificationId = `ver_${nanoid()}`;
 	const timestamp = Date.now();
@@ -178,7 +182,7 @@ export function verifyPayment(
  * - Confirmation timeouts
  */
 export function settlePayment(
-	input: SettlementInput
+	input: X402SettleRequestBody
 ): Promise<SettlementResult> {
 	const settlementId = `set_${nanoid()}`;
 
