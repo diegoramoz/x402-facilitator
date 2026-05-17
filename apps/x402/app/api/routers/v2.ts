@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "@/app/api/routers/procedures";
+import { apiKeyProcedure } from "@/app/api/routers/procedures";
 import {
 	x402SettleRequestBodySchema,
 	x402VerifyRequestBodySchema,
@@ -24,21 +24,21 @@ import {
 /**
  * Verify a payment signature
  */
-const verify = publicProcedure
+const verify = apiKeyProcedure
 	.input(x402VerifyRequestBodySchema)
 	.handler(async ({ input }) => verifyPayment(input));
 
 /**
  * Submit a settlement to blockchain
  */
-const settle = publicProcedure
+const settle = apiKeyProcedure
 	.input(x402SettleRequestBodySchema)
 	.handler(async ({ input }) => settlePayment(input));
 
 /**
  * Get verification status
  */
-const getVerificationStatus = publicProcedure
+const getVerificationStatus = apiKeyProcedure
 	.input(z.object({ verificationId: z.string() }))
 	.handler(async ({ input }) =>
 		getFacilitatorVerificationStatus(input.verificationId)
@@ -47,7 +47,7 @@ const getVerificationStatus = publicProcedure
 /**
  * Get settlement status
  */
-const getSettlementStatus = publicProcedure
+const getSettlementStatus = apiKeyProcedure
 	.input(z.object({ settlementId: z.string() }))
 	.handler(async ({ input }) =>
 		getFacilitatorSettlementStatus(input.settlementId)

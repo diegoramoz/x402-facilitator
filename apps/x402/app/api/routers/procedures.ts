@@ -96,7 +96,7 @@ const requireApiKey = publicO.middleware(({ context, next }) => {
 	return next({ context });
 });
 
-export const publicProcedure = publicO.use(requireApiKey);
+export const apiKeyProcedure = publicO.use(requireApiKey);
 
 const RATE_LIMIT_CONFIG_SCHEMA = z.object({
 	keyPrefix: z.string().min(1),
@@ -141,7 +141,7 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 }
 
 function getClientAddress(req: NextRequest): string {
-	if (env.TRUST_PROXY_HEADERS !== "true") {
+	if (env.TRUST_PROXY_HEADERS === false) {
 		return "unknown";
 	}
 

@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { supportedNetworks } from "@/app/api/routers/chains";
 
 const evmChecksumAddressRegex = /^0x[0-9a-fA-F]{40}$/;
 const evmTransactionHashRegex = /^0x[0-9a-fA-F]{64}$/;
@@ -7,6 +8,7 @@ const base58SolanaAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const base58SolanaTransactionHash = /^[1-9A-HJ-NP-Za-km-z]{87,88}$/;
 const hashedNonceRegex = /^0x[0-9a-fA-F]{64}$/;
 const numericNonceRegex = /^[0-9]+$/;
+const unixTimestampRegex = /^[0-9]+$/;
 
 const evmChecksumAddressSchema = z
 	.string()
@@ -34,6 +36,13 @@ const hashedNonceSchema = z
 const numericNonceSchema = z
 	.string()
 	.regex(numericNonceRegex, "Invalid nonce format, expected numeric string");
+
+const unixTimestampSchema = z
+	.string()
+	.regex(
+		unixTimestampRegex,
+		"Invalid timestamp format, expected unix timestamp"
+	);
 
 const schemeSchema = z
 	.enum(["exact", "upto"])
@@ -65,8 +74,14 @@ const authorizationSchema = z.object({
 	from: evmChecksumAddressSchema,
 	to: evmChecksumAddressSchema,
 	value: z.string().min(1),
-	validAfter: z.string().min(1),
-	validBefore: z.string().min(1),
+	validAfter: unixTimestampSchema.refine(
+		(value) => BigInt(value) <= BigInt(Math.floor(Date.now() / 1000)),
+		"Payment not yet valid"
+	),
+	validBefore: unixTimestampSchema.refine(
+		(value) => BigInt(value) >= BigInt(Math.floor(Date.now() / 1000)),
+		"Payment has expired"
+	),
 	nonce: hashedNonceSchema,
 });
 
@@ -111,14 +126,7 @@ const paymentPayloadOption1Schema = z.object({
 	extensions: extensionsSchema,
 });
 
-const networkSchema = z.enum([
-	"base-sepolia",
-	"base",
-	"solana-devnet",
-	"solana",
-	"arc-testnet",
-	"arc",
-]);
+const networkSchema = z.enum(supportedNetworks);
 
 const paymentPayloadOption2Schema = z.object({
 	x402Version: x402VersionSchema,
@@ -225,6 +233,8 @@ export const x402VerifyResponseSchema = z.object({
 	invalidMessage: z.string().optional(),
 });
 
+export type X402VerifyResponse = typeof x402VerifyResponseSchema._zod.output;
+
 // SETTLE
 
 const settleOption1Schema = z.object({
@@ -300,3 +310,5 @@ export const x402SettleResponseSchema = z.object({
 	errorMessage: z.string().optional(),
 	amount: z.string().optional(),
 });
+
+export type X402SettleResponse = typeof x402SettleResponseSchema._zod.output;
