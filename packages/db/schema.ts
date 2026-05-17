@@ -333,6 +333,43 @@ export const apiAuditLog = snakeCase.table(
 	]
 );
 
+/**
+ * Payment Verification: x402 verification attempt log
+ */
+export const paymentVerification = snakeCase.table(
+	"payment_verification",
+	{
+		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
+		nanoId: varchar({ length: NANO_ID_LENGTH })
+			.$defaultFn(() => myNanoid())
+			.notNull()
+			.unique(),
+		payloadHash: varchar({ length: 64 }).notNull(),
+		x402Version: integer().notNull(),
+		network: varchar({ length: 64 }).notNull(),
+		requiredAmount: text().notNull(),
+		candidateAmount: text().notNull(),
+		payer: text().notNull(),
+		payTo: text().notNull(),
+		isValid: boolean().notNull(),
+		reason: text(),
+		logLevel: varchar({ length: 32 }).notNull(),
+		payload: json(),
+		createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+		expiresAt: timestamp({ withTimezone: true }).notNull(),
+	},
+	(t) => [
+		index("payment_verification_payload_hash_idx").on(t.payloadHash),
+		index("payment_verification_expires_at_idx").on(t.expiresAt),
+	]
+);
+
+export const selectPaymentVerificationSchema =
+	createSelectSchema(paymentVerification);
+
+export const insertPaymentVerificationSchema =
+	createInsertSchema(paymentVerification);
+
 // ─── RELATIONS ────────────────────────────────────────────────────────────
 
 export const organizationRelations = relations(organization, ({ many }) => ({
@@ -366,6 +403,9 @@ export default {
 	wallet,
 	apiAuditLog,
 	apiAuditLogRelations,
+	paymentVerification,
+	selectPaymentVerificationSchema,
+	insertPaymentVerificationSchema,
 	idempotencyResponse,
 	organization,
 	organizationMember,

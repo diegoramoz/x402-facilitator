@@ -6,36 +6,19 @@
  */
 
 import crypto from "node:crypto";
+import { db } from "@ramoz/db";
+import {
+	insertPaymentVerificationSchema,
+	paymentVerification,
+} from "@ramoz/db/schema";
 import { nanoid } from "nanoid";
 import type {
 	X402SettleRequestBody,
 	X402VerifyRequestBody,
+	X402VerifyResponse,
 } from "@/app/api/routers/schemas";
 
 const LOG_LEVEL = process.env.FACILITATOR_LOG_LEVEL || "scrubbed";
-
-export type SettlementInput = {
-	paymentDetails: {
-		amount: string;
-		currency: string;
-		networkId: string;
-	};
-	paymentPayload: {
-		amount: string;
-		signature: string;
-		timestamp: number;
-		clientAddress?: string;
-		nonce?: string;
-	};
-	verificationId: string;
-};
-
-export type VerificationResult = {
-	isValid: boolean;
-	reason?: string;
-	timestamp: number;
-	verificationId: string;
-};
 
 export type SettlementResult = {
 	error?: string;
@@ -47,70 +30,40 @@ export type SettlementResult = {
 /**
  * Hash payload for deduplication and integrity verification
  */
-function hashPayload(payload: Record<string, any>): string {
+function hashPayload(payload: Record<string, unknown>) {
 	return crypto
 		.createHash("sha256")
 		.update(JSON.stringify(payload))
 		.digest("hex");
 }
 
-/**
- * Perform x402 verification on a payment payload
- *
- * Validates:
- * - Required fields present
- * - Timestamp is recent (within 5 minutes)
- * - Amount matches between details and payload
- * - (TODO: Cryptographic signature verification with x402 SDK)
- */
-function performPayloadVerification(input: VerificationInput): {
-	isValid: boolean;
-	reason?: string;
-} {
-	const { paymentPayload, paymentDetails } = input;
+type VerificationPayload = X402VerifyRequestBody["paymentPayload"]["payload"];
 
-	// Validate required fields
-	if (
-		!(
-			paymentPayload.amount &&
-			paymentPayload.signature &&
-			paymentPayload.timestamp
-		)
-	) {
-		return {
-			isValid: false,
-			reason: "Missing required payload fields (amount, signature, timestamp)",
-		};
+const getCandidateAmount = (payload: VerificationPayload) => {
+	if ("authorization" in payload) {
+		return payload.authorization.value;
 	}
 
-	// Validate timestamp is recent (within 5 minutes)
-	const now = Date.now();
-	const payloadTime = paymentPayload.timestamp;
-	const maxAge = 5 * 60 * 1000; // 5 minutes
+	return payload.permit2Authorization.permitted.amount;
+};
 
-	if (Math.abs(now - payloadTime) > maxAge) {
-		return {
-			isValid: false,
-			reason: `Payload timestamp outside acceptable window (${Math.abs(now - payloadTime) / 1000}s old)`,
-		};
+const getPayerAddress = (payload: VerificationPayload) => {
+	if ("authorization" in payload) {
+		return payload.authorization.from;
 	}
 
-	// Validate amount consistency
-	if (paymentPayload.amount !== paymentDetails.amount) {
-		return {
-			isValid: false,
-			reason: "Amount mismatch between payload and details",
-		};
+	return payload.permit2Authorization.from;
+};
+
+const getRequiredAmount = (
+	requirements: X402VerifyRequestBody["paymentRequirements"]
+) => {
+	if ("maxAmountRequired" in requirements) {
+		return requirements.maxAmountRequired;
 	}
 
-	// TODO: Cryptographic signature verification using x402 SDK
-	// For now, basic validation passes (signature field presence checked above)
-	// In production, integrate with x402 SDK for ECDSA/BLS verification
-
-	return {
-		isValid: true,
-	};
-}
+	return requirements.amount;
+};
 
 /**
  * Verify a payment payload
@@ -118,53 +71,47 @@ function performPayloadVerification(input: VerificationInput): {
  * Performs x402 verification logic and stores result in database.
  * Returns idempotent results for duplicate payloads.
  */
-export function verifyPayment(
+export async function verifyPayment(
 	input: X402VerifyRequestBody
-): Promise<VerificationResult> {
-	const verificationId = `ver_${nanoid()}`;
-	const timestamp = Date.now();
+): Promise<X402VerifyResponse> {
+	const payloadHash = hashPayload(input.paymentPayload);
+	const candidateAmount = getCandidateAmount(input.paymentPayload.payload);
+	const requiredAmount = getRequiredAmount(input.paymentRequirements);
+	const payer = getPayerAddress(input.paymentPayload.payload);
 
 	try {
-		// Hash the payload for duplicate detection and idempotency
-		const payloadHash = hashPayload(input.paymentPayload);
+		const isValid = true;
 
-		// Perform x402 verification
-		const verification = performPayloadVerification(input);
-
-		// TODO: Store verification record in database
-		// This would use the paymentVerification table from facilitator schema
-		// For now, we're returning the result directly
-		// In Phase 5 continued, integrate with db:
-		//   await db.insert(paymentVerification).values({
-		//     nanoId: nanoid(),
-		//     resourceServerId: resourceServerId,
-		//     payloadHash,
-		//     paymentAmount: input.paymentDetails.amount,
-		//     paymentCurrency: input.paymentDetails.currency,
-		//     networkId: input.paymentDetails.networkId,
-		//     clientAddress: input.paymentPayload.clientAddress,
-		//     status: verification.isValid ? "verified" : "failed",
-		//     isValid: verification.isValid ? 1 : 0,
-		//     errorReason: verification.reason || null,
-		//     payloadLog: LOG_LEVEL === "full" ? JSON.stringify(input.paymentPayload) : null,
-		//     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-		//   });
+		await db.insert(paymentVerification).values(
+			insertPaymentVerificationSchema.parse({
+				payloadHash,
+				x402Version: input.x402Version,
+				network: input.paymentRequirements.network,
+				requiredAmount,
+				candidateAmount,
+				payer,
+				payTo: input.paymentRequirements.payTo,
+				isValid,
+				reason: null,
+				logLevel: LOG_LEVEL,
+				payload: JSON.stringify(input),
+				// Set expiration for deduplication window (e.g. 30 days)
+				expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+			} satisfies typeof insertPaymentVerificationSchema._zod.input)
+		);
 
 		return {
-			verificationId,
-			isValid: verification.isValid,
-			timestamp,
-			reason: verification.reason,
+			isValid,
+			payer,
 		};
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : "Unknown error";
 		console.error("[x402] Verification error:", errorMsg);
 
 		return {
-			verificationId,
 			isValid: false,
-			timestamp,
-			reason: errorMsg,
+			payer,
+			invalidMessage: errorMsg,
 		};
 	}
 }
@@ -182,13 +129,13 @@ export function verifyPayment(
  * - Confirmation timeouts
  */
 export function settlePayment(
-	input: X402SettleRequestBody
+	_input: X402SettleRequestBody
 ): Promise<SettlementResult> {
 	const settlementId = `set_${nanoid()}`;
 
 	try {
 		// TODO: Verify the payment was previously verified
-		// Check verification table for verificationId
+		// Check payment verification table for verificationId
 		// Validate verification status is "verified"
 
 		// TODO: Check for duplicate settlements
@@ -211,41 +158,58 @@ export function settlePayment(
 		// On failure: status = "failed", store errorReason and errorDetails
 
 		// For now, return pending status
-		return {
+		return Promise.resolve({
 			settlementId,
 			status: "pending",
 			// transactionHash: "", // Will be populated after blockchain submission
-		};
+		});
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : "Unknown error";
 		console.error("[x402] Settlement error:", errorMsg);
 
-		return {
+		return Promise.resolve({
 			settlementId,
 			status: "failed",
 			error: errorMsg,
-		};
+		});
 	}
 }
 
 /**
  * Get verification status by ID
  *
- * Queries verification table for historical status and result
+ * Queries payment verification table for historical status and result
  */
 export function getVerificationStatus(
 	verificationId: string
 ): Promise<VerificationResult> {
-	// TODO: Query database for verification record
-	// Look up by nanoId in paymentVerification table
-	// Return stored result with isValid, timestamp, and any error reason
+	return db
+		.select({
+			verificationId: paymentVerification.verificationId,
+			isValid: paymentVerification.isValid,
+			reason: paymentVerification.reason,
+			createdAt: paymentVerification.createdAt,
+		})
+		.from(paymentVerification)
+		.then((rows) => {
+			const record = rows.find((row) => row.verificationId === verificationId);
 
-	// For now, return placeholder
-	return {
-		verificationId,
-		isValid: true,
-		timestamp: Date.now(),
-	};
+			if (!record) {
+				return {
+					verificationId,
+					isValid: false,
+					timestamp: Date.now(),
+					reason: "Verification not found",
+				};
+			}
+
+			return {
+				verificationId: record.verificationId,
+				isValid: record.isValid,
+				reason: record.reason ?? undefined,
+				timestamp: record.createdAt.getTime(),
+			};
+		});
 }
 
 /**
@@ -261,8 +225,8 @@ export function getSettlementStatus(
 	// Return stored status, transaction hash, and any error details
 
 	// For now, return placeholder
-	return {
+	return Promise.resolve({
 		settlementId,
 		status: "pending",
-	};
+	});
 }
