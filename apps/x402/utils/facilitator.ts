@@ -105,47 +105,36 @@ export async function verifyPayment(
 	const requiredAmount = getRequiredAmount(body.paymentRequirements);
 	const payer = getPayerAddress(body.paymentPayload.payload);
 
-	try {
-		// Hooks will automatically:
-		// - Track verified payment (onAfterVerify)
-		// - Extract and catalog discovery info (onAfterVerify)
-		const response = await facilitator.verify(
-			body.paymentPayload,
-			body.paymentRequirements
-		);
+	// Hooks will automatically:
+	// - Track verified payment (onAfterVerify)
+	// - Extract and catalog discovery info (onAfterVerify)
+	const response = await facilitator.verify(
+		body.paymentPayload,
+		body.paymentRequirements
+	);
 
-		await db.insert(paymentVerification).values(
-			insertPaymentVerificationSchema.parse({
-				payloadHash,
-				x402Version: body.x402Version,
-				network: body.paymentRequirements.network,
-				requiredAmount,
-				candidateAmount,
-				payer,
-				payTo: body.paymentRequirements.payTo,
-				isValid: response.isValid,
-				reason: null,
-				logLevel: LOG_LEVEL,
-				payload: JSON.stringify(body),
-				// Set expiration for deduplication window (e.g. 30 days)
-				expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-			} satisfies typeof insertPaymentVerificationSchema._zod.input)
-		);
-
-		return {
+	await db.insert(paymentVerification).values(
+		insertPaymentVerificationSchema.parse({
+			payloadHash,
+			x402Version: body.x402Version,
+			network: body.paymentRequirements.network,
+			requiredAmount,
+			candidateAmount,
 			payer,
-			...response,
-		};
-	} catch (error) {
-		const errorMsg = error instanceof Error ? error.message : "Unknown error";
-		console.error("[x402] Verification error:", errorMsg);
+			payTo: body.paymentRequirements.payTo,
+			isValid: response.isValid,
+			reason: null,
+			logLevel: LOG_LEVEL,
+			payload: JSON.stringify(body),
+			// Set expiration for deduplication window (e.g. 30 days)
+			expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+		} satisfies typeof insertPaymentVerificationSchema._zod.input)
+	);
 
-		return {
-			isValid: false,
-			payer,
-			invalidMessage: errorMsg,
-		};
-	}
+	return {
+		payer,
+		...response,
+	};
 }
 
 /**
@@ -158,50 +147,36 @@ export async function settlePayment(
 	const requiredAmount = getRequiredAmount(body.paymentRequirements);
 	const payer = getPayerAddress(body.paymentPayload.payload);
 
-	try {
-		const facilitator = new x402Facilitator();
+	const facilitator = new x402Facilitator();
 
-		// Verify payment
-		const verifyResult = await facilitator.verify(
+	// Verify payment
+	const verifyResult = await facilitator.verify(
+		body.paymentPayload,
+		body.paymentRequirements
+	);
+
+	if (verifyResult.isValid) {
+		const settleResult = await facilitator.settle(
 			body.paymentPayload,
 			body.paymentRequirements
 		);
-
-		if (verifyResult.isValid) {
-			const settleResult = await facilitator.settle(
-				body.paymentPayload,
-				body.paymentRequirements
-			);
-			console.log("Transaction:", settleResult.transaction);
-
-			return {
-				...settleResult,
-				payer,
-				amount: requiredAmount,
-				network: body.paymentRequirements.network,
-				success: true,
-				transaction: settleResult.transaction,
-			};
-		}
+		console.log("Transaction:", settleResult.transaction);
 
 		return {
+			...settleResult,
 			payer,
-			network: body.paymentRequirements.network,
-			success: false,
 			amount: requiredAmount,
-			transaction: "0x00",
-		};
-	} catch (error) {
-		const errorMsg = error instanceof Error ? error.message : "Unknown error";
-		console.error("[x402] Settlement error:", errorMsg);
-
-		return {
 			network: body.paymentRequirements.network,
-			payer,
-			success: false,
-			transaction: "0x00",
-			errorMessage: errorMsg,
-			amount: requiredAmount,
+			success: true,
+			transaction: settleResult.transaction,
 		};
 	}
+
+	return {
+		payer,
+		network: body.paymentRequirements.network,
+		success: false,
+		amount: requiredAmount,
+		transaction: "0x00",
+	};
 }

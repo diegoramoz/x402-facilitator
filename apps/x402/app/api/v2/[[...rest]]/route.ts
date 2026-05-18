@@ -42,6 +42,7 @@ const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
+			specPath: "/openapi.json",
 		}),
 	],
 	interceptors: [
@@ -58,20 +59,6 @@ async function handleRequest(req: NextRequest) {
 	try {
 		const context = createPublicContext(req);
 
-		// Check for OpenAPI spec request
-		if (
-			req.nextUrl.pathname === "/api/v2/openapi.json" ||
-			req.nextUrl.pathname.endsWith("/openapi.json")
-		) {
-			const apiResult = await apiHandler.handle(req, {
-				prefix: "/api/v2",
-				context,
-			});
-			if (apiResult.response) {
-				return apiResult.response;
-			}
-		}
-
 		// Handle RPC procedure calls
 		const rpcResult = await rpcHandler.handle(req, {
 			prefix: "/api/v2",
@@ -81,14 +68,21 @@ async function handleRequest(req: NextRequest) {
 			return rpcResult.response;
 		}
 
+		// Serve OpenAPI schema/docs routes
+		const apiResult = await apiHandler.handle(req, {
+			prefix: "/api/v2",
+			context,
+		});
+		if (apiResult.response) {
+			return apiResult.response;
+		}
+
 		return new Response(
 			JSON.stringify({
 				error: {
 					code: "NOT_FOUND",
 					message: "Endpoint not found",
 				},
-				requestId: context.requestId,
-				timestamp: Date.now(),
 			}),
 			{ status: 404, headers: { "Content-Type": "application/json" } }
 		);
@@ -100,8 +94,6 @@ async function handleRequest(req: NextRequest) {
 					code: "INTERNAL_SERVER_ERROR",
 					message: "Internal server error",
 				},
-				requestId: crypto.randomUUID(),
-				timestamp: Date.now(),
 			}),
 			{ status: 500, headers: { "Content-Type": "application/json" } }
 		);
